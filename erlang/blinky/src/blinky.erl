@@ -27,8 +27,9 @@
 % -define(PIN, {wl, 0}).
 
 start() ->
-    platform_gpio_setup(atomvm:platform()),
-    loop(pin(), low).
+    Pin = pin(),
+    platform_gpio_setup(atomvm:platform(), Pin),
+    loop(Pin, low).
 
 loop(Pin, Level) ->
     io:format("Setting pin ~p ~p~n", [Pin, Level]),
@@ -53,20 +54,18 @@ pin() ->
             erlang:exit({unsupported_platform, Platform})
     end.
 
-platform_gpio_setup(esp32) ->
-    gpio:set_pin_mode(pin(), output);
-platform_gpio_setup(stm32) ->
-    gpio:set_pin_mode(pin(), output);
-platform_gpio_setup(pico) ->
-    case ?PIN of
+platform_gpio_setup(esp32, Pin) ->
+    gpio:set_pin_mode(Pin, output);
+platform_gpio_setup(stm32, Pin) ->
+    gpio:set_pin_mode(Pin, output);
+platform_gpio_setup(pico, Pin) ->
+    case Pin of
         {wl, 0} ->
-            % Pico-W needs no setup for extra "WL" pins
             ok;
-        Pin ->
-            % Setup for Pico GPIO pins
+        _ ->
             gpio:init(Pin),
             gpio:set_pin_mode(Pin, output)
     end;
-platform_gpio_setup(Platform) ->
+platform_gpio_setup(Platform, _Pin) ->
     io:format("Platform ~p is not supported.~n", [Platform]),
     erlang:exit({error, {unsupported_platform, Platform}}).
