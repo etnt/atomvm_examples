@@ -26,48 +26,28 @@
 % Uncomment the following line to use pico-w onboard LED.
 % -define(PIN, {wl, 0}).
 % Standard Pico onboard LED is on pin 25.
--define(PIN, 25).
+%-define(PIN, 25).
+-define(PIN, 15).
+-define(PIN2, 16).
+
 
 start() ->
-    Pin = pin(),
-    platform_gpio_setup(atomvm:platform(), Pin),
-    loop(Pin, low).
+    Pin1 = ?PIN,
+    Pin2 = ?PIN2,
+    gpio:init(Pin1),
+    gpio:set_pin_mode(Pin1, output),
+    gpio:init(Pin2),
+    gpio:set_pin_mode(Pin2, output),
+    loop(Pin1, Pin2, low).
 
-loop(Pin, Level) ->
-    io:format("Setting pin ~p ~p~n", [Pin, Level]),
-    gpio:digital_write(Pin, Level),
+loop(Pin1, Pin2, Level) ->
+    io:format("Pin ~p ~p, Pin ~p ~p~n", [Pin1, Level, Pin2, toggle(Level)]),
+    gpio:digital_write(Pin1, Level),
+    gpio:digital_write(Pin2, toggle(Level)),
     timer:sleep(1000),
-    loop(Pin, toggle(Level)).
+    loop(Pin1, Pin2, toggle(Level)).
 
 toggle(high) ->
     low;
 toggle(low) ->
     high.
-
-pin() ->
-    case atomvm:platform() of
-        esp32 ->
-            2;
-        pico ->
-            ?PIN;
-        stm32 ->
-            {b, 0};
-        Platform ->
-            erlang:exit({unsupported_platform, Platform})
-    end.
-
-platform_gpio_setup(esp32, Pin) ->
-    gpio:set_pin_mode(Pin, output);
-platform_gpio_setup(stm32, Pin) ->
-    gpio:set_pin_mode(Pin, output);
-platform_gpio_setup(pico, Pin) ->
-    case Pin of
-        {wl, 0} ->
-            ok;
-        _ ->
-            gpio:init(Pin),
-            gpio:set_pin_mode(Pin, output)
-    end;
-platform_gpio_setup(Platform, _Pin) ->
-    io:format("Platform ~p is not supported.~n", [Platform]),
-    erlang:exit({error, {unsupported_platform, Platform}}).
