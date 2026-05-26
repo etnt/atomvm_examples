@@ -22,9 +22,11 @@
 -export([start/0]).
 
 % External LED on pin 2 will work with all pico devices.
--define(PIN, 2).
-% Comment out above and uncomment the following line to use pico-w onboard LED.
+% -define(PIN, 2).
+% Uncomment the following line to use pico-w onboard LED.
 % -define(PIN, {wl, 0}).
+% Standard Pico onboard LED is on pin 25.
+-define(PIN, 25).
 
 start() ->
     Pin = pin(),
