@@ -1,0 +1,10 @@
+{application, i2c_scanner, [
+    {description, "I2C bus scanner for AtomVM"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {applications, [kernel, stdlib]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, []}
+]}.
